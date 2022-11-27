@@ -1,7 +1,7 @@
 #ifndef __UDP_CLIENT__
     #define __UDP_CLIENT__
 
-        #include "utils.h"
+        #include "main_header.h"
 
         class UDPClient
         {
@@ -17,7 +17,7 @@
 
                /** Methods **/
                /* Senders */
-                void send_Request   (string file_request);
+                void send_Request   (string resource_request);
                 
                /* Receivers */
 

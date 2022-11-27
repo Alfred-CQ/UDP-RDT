@@ -32,6 +32,7 @@ UDPServer::UDPServer(string ip, uint port)
                 server_resources_path = string(RESOURCES_DIR) + "/";
     }
 
+    thread(&UDPServer::recv_Requests, this).detach();
 }
 
 /* Methods */
@@ -39,9 +40,35 @@ UDPServer::UDPServer(string ip, uint port)
 
 
 // Receivers
-bool UDPServer::recv_Request()
+void UDPServer::recv_Requests()
 {
-    
+    char size_Request[3];
+    string resource_name;
+
+    server_bytes_recv = 0;
+    server_recv_buffer = new char[REQUEST_SIZE];
+   
+    while (1)
+    {
+        server_bytes_recv = recvfrom(server_sockFD, server_recv_buffer, 
+                                     REQUEST_SIZE, 0, 
+                                     (SOCK_ADDR *)& client_addr, &server_addr_len
+                                    );
+        
+        strncpy(size_Request, server_recv_buffer, 2);
+
+        resource_name = string(server_recv_buffer, 2, atoi(size_Request));
+
+        if (query_Available(resource_name))
+        {
+            cout << "Resource found ✨\n";
+            cout << "Resource path: " << resource_name << "\n";
+        }
+        else
+        {
+            cout << "Resource not found 🚫" << endl;
+        }
+    }
 }
 
 // Utilities
@@ -58,4 +85,19 @@ void UDPServer::print_Information()
          << "        RESOURCES_PATH: " << server_resources_path << "\n"
          << "******************************************************"
          << endl;
+}
+
+bool UDPServer::query_Available(string& resource_name)
+{
+    for (const auto & entry : fs::directory_iterator(server_resources_path))
+    {
+        if ( entry.path().filename() == resource_name )
+        {
+            resource_name = server_resources_path + resource_name;
+            return true;
+        }
+            
+    }
+
+    return false;
 }

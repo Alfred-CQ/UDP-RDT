@@ -1,4 +1,5 @@
 #include "../include/udp_client.h"
+#include "../include/utils.h"
 
 /* Constructors and Destructor */
 UDPClient::UDPClient(string ip_server, uint port)
@@ -26,17 +27,17 @@ UDPClient::~UDPClient()
 
 /* Methods */
 // Senders
-void UDPClient::send_Request(string file_request)
+void UDPClient::send_Request(string resource_request)
 {
-    if (file_request != START)
-        cout << "\n 🗂️ Request: " << file_request << " successfully sent ✅\n";
+    if (resource_request != START)
+        cout << "\n 🗂️ Request: " << resource_request << " successfully sent ✅\n";
     else
     {
-        cout << "\n 🗳️ End of requests, command [ " << file_request << " ] found \n\n";
+        cout << "\n 🗳️ End of requests, command [ " << resource_request << " ] found \n\n";
         return;
     }
 
-    string request    = std::to_string(file_request.size()) + file_request;
+    string request    = utils::complete_Bytes(resource_request.size(), 2) + resource_request;
 
     client_bytes_send = sendto(client_sockFD, &(request.front()), request.size(), 0, (SOCK_ADDR*)& server_addr, SOCK_ADDR_SIZE);
 }

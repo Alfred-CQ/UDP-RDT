@@ -1,66 +1,37 @@
-#ifndef __RESOURCES_H__
-#define __RESOURCES_H__
+#ifndef __UTILS_H__
+    #define __UTILS_H__
 
-/* Libraries */
-// NETWORK - SOCKETS
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+    #include "main_header.h"
 
-// UNIX
-#include <unistd.h>
-#include <errno.h>
+    namespace utils
+    {
+       /** Checksum **/
+        static inline uint make_Checksum(const char data[MAX_SEGMENT_SIZE + 1])
+        {
+            uint checksum{0};
 
-// C
-#include <string.h>
+            for (size_t idx = 0; idx < MAX_SEGMENT_SIZE; ++idx)
+                checksum += int(data[idx]);
 
-// STL
-#include <iostream>
-#include <string>
-#include <vector>
-#include <filesystem>
-#include <fstream>
+            return (checksum % 7);
+        }
 
-/* Usings */
-using std::cout;            using std::cin;   
-using std::endl;
-using std::string;          using std::ifstream;
-using std::ofstream;        using std::vector;
+        static inline bool test_Checksum(const char data[MAX_SEGMENT_SIZE + 1], uint recv_checksum)
+        {
+            return (make_Checksum(data) == recv_checksum);
+        }
 
-// Namespaces
-namespace fs = std::filesystem;
+        static inline string complete_Bytes(uint number, uint size)
+        {
+            string numb = std::to_string(number);
+            uint complete = size - numb.size();
 
-/* Typedefs */
-// Connection
-typedef struct sockaddr_in  SOCK_ADDR_IN;
-typedef struct sockaddr     SOCK_ADDR;
-typedef struct in_addr      IN_ADDR;
-typedef struct hostent      HOST;
+            while(complete--)
+                numb.insert(numb.begin(), '0');
 
-// Program
-typedef unsigned int        uint;
-typedef vector<string>      FILES;
+            return numb;
+        }
+        
+    }
 
-/* Definitions */
-// Sizes
-#define MAX_MESSAGE_SIZE    1024
-#define MAX_SEGMENT_SIZE    1000
-
-#define MIN_MESSAGE_SIZE    0
-
-#define SOCK_ADDR_SIZE      sizeof(sockaddr)
-
-// Connection
-#define PORT                5000
-
-// Commands
-#define ALL                 "-all"
-#define START               "-start"
-
-// Directories
-#define RESOURCES_DIR       "resources"
-#define REQUESTS_DIR        "requests"
-
-#endif // !__RESOURCES_H__
+#endif // !__UTILS_H__

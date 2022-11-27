@@ -2,9 +2,9 @@
 
 int main()
 {
-    UDPClient* myClient     { new UDPClient("127.0.0.1") };
-    string     command      { "Y" };
-    FILES      file_Names;
+    UDPClient* myClient       { new UDPClient("127.0.0.1") };
+    string     command        { "Y" };
+    RESOURCES  resource_names;
     
     myClient->print_Information();
 
@@ -16,23 +16,22 @@ int main()
 
         while (command != ALL && command != START)
         {
-            string file_Name;
+            string resource_name;
 
-            cout << "  > ";
-            cin >> file_Name;
+            cout << "  > "; cin >> resource_name;
 
-            file_Names.push_back(file_Name);
+            resource_names.push_back(resource_name);
 
-            command = file_Name;
+            command = resource_name;
         }
 
-        for (size_t i = 0; i < file_Names.size(); ++i)
-            myClient->send_Request(file_Names[i]);
+        for (size_t i = 0; i < resource_names.size(); ++i)
+            myClient->send_Request(resource_names[i]);
 
         cout << "Would like to retry? (Y/N)" << endl;
         cin >> command;
 
-        file_Names.clear();
+        resource_names.clear();
     }
 
     cout << " 🏁 FINISH UDP CLIENT PROGRAM 🏁\n";
