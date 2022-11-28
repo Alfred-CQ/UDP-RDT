@@ -54,7 +54,7 @@ typedef vector<string>      RESOURCES;
 #define MIN_MESSAGE_SIZE    0
 
 #define SOCK_ADDR_SIZE      sizeof(sockaddr)
-#define REQUEST_SIZE        102
+#define REQUEST_NAME_SIZE   102
 
 #define NUMBER_STREAMS      9
 

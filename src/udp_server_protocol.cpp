@@ -40,7 +40,7 @@ UDPServer::UDPServer(string ip, uint port)
 
 /* Methods */
 // Senders
-void UDPServer::send_Resource(string resource_name)
+void UDPServer::send_Responses(string resource_name)
 {
     ifstream resource { resource_name, std::ios::in };
 
@@ -102,12 +102,12 @@ void UDPServer::recv_Requests()
     string resource_name;
 
     server_bytes_recv = 0;
-    server_recv_buffer = new char[REQUEST_SIZE];
+    server_recv_buffer = new char[REQUEST_NAME_SIZE];
    
     while (1)
     {
         server_bytes_recv = recvfrom(server_sockFD, server_recv_buffer, 
-                                     REQUEST_SIZE, 0, 
+                                     REQUEST_NAME_SIZE, 0, 
                                      (SOCK_ADDR *)& client_addr, &server_addr_len
                                     );
         
@@ -115,10 +115,10 @@ void UDPServer::recv_Requests()
 
         resource_name = string(server_recv_buffer, 2, atoi(size_Request));
 
-        if (query_Available(resource_name))
+        if (find_Resource(resource_name))
         {
             cout << " Resource found ✨ in " << resource_name << " 🗃\n";
-            thread(&UDPServer::send_Resource, this, resource_name).detach();
+            thread(&UDPServer::send_Responses, this, resource_name).detach();
         }
         else
         {
@@ -143,7 +143,7 @@ void UDPServer::print_Information()
          << endl;
 }
 
-bool UDPServer::query_Available(string& resource_name)
+bool UDPServer::find_Resource(string& resource_name)
 {
     for (const auto & entry : fs::directory_iterator(server_resources_path))
     {

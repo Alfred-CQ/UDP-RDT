@@ -20,7 +20,7 @@
                 void send_Request       (string resource_request);
                 
                /* Receivers */
-                void recv_Resources     ();
+                void recv_Responses     ();
 
                /* Utilities */
                 void print_Information  ();

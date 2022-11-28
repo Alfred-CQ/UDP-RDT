@@ -20,7 +20,7 @@ UDPClient::UDPClient(string ip_server, uint port)
 
     bzero(&(server_addr.sin_zero), 8);
 
-    thread(&UDPClient::recv_Resources, this).detach();
+    thread(&UDPClient::recv_Responses, this).detach();
 }
 
 UDPClient::~UDPClient()
@@ -46,7 +46,7 @@ void UDPClient::send_Request(string resource_request)
 }
 
 // Receivers
-void UDPClient::recv_Resources()
+void UDPClient::recv_Responses()
 {
     client_recv_buffer = new char[MAX_MESSAGE_SIZE];
 

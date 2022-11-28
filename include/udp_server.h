@@ -19,14 +19,14 @@
 
                /** Methods **/
                /* Senders */
-                void send_Resource      (string resource_name);
+                void send_Responses     (string resource_name);
 
                /* Receivers */
                 void recv_Requests      ();
 
                /* Utilities */
                 void print_Information  ();
-                bool query_Available    (string& resource_name);
+                bool find_Resource      (string& resource_name);
 
             private:
                /* Variables */
