@@ -4,8 +4,9 @@
 /* Constructors and Destructor */
 UDPClient::UDPClient(string ip_server, uint port)
 {
-    client_host = (HOST *)gethostbyname((char *)ip_server.c_str());
-    client_port = port;
+    client_host     = (HOST *)gethostbyname((char *)ip_server.c_str());
+    client_port     = port;
+    client_addr_len = sizeof(struct sockaddr);
 
     if ((client_sockFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
@@ -18,6 +19,8 @@ UDPClient::UDPClient(string ip_server, uint port)
     server_addr.sin_addr   = *((IN_ADDR *)client_host->h_addr);
 
     bzero(&(server_addr.sin_zero), 8);
+
+    thread(&UDPClient::recv_Resources, this).detach();
 }
 
 UDPClient::~UDPClient()
@@ -43,6 +46,41 @@ void UDPClient::send_Request(string resource_request)
 }
 
 // Receivers
+void UDPClient::recv_Resources()
+{
+    client_recv_buffer = new char[MAX_MESSAGE_SIZE];
+
+    vector<bool> streams_used (NUMBER_STREAMS, false);
+    vector<vector<string>> data_streams(NUMBER_STREAMS);
+
+    char stream;
+    string number_segments;
+
+    while (1)
+    {
+        client_bytes_recv = recvfrom(client_sockFD, client_recv_buffer, MAX_MESSAGE_SIZE, MSG_WAITALL, (SOCK_ADDR *)& server_addr, &client_addr_len);
+        stream = client_recv_buffer[5];
+        
+        size_t idx_stream = atoi(&stream);
+        number_segments = string(client_recv_buffer, 6, 4);
+        
+        cout << client_recv_buffer << endl;
+        cout << " - " << idx_stream << " - " << number_segments << endl;
+
+        data_streams[idx_stream].push_back(string(client_recv_buffer, 14, MAX_SEGMENT_SIZE));
+
+        if (data_streams[idx_stream].size() == luint(atoi(number_segments.c_str())))
+        {
+            cout << "*****************************************************\n"
+                 << "      📬 Resource received in stream" << stream << endl;
+
+            ofstream out_file (string("requests/out_file") + string(&stream) + string(".txt"));
+
+            for (size_t i = 0; i < data_streams[idx_stream].size(); ++i)
+                out_file << data_streams[idx_stream][i];
+        }
+    }
+}
 
 // Utilities
 void UDPClient::print_Information()

@@ -19,6 +19,7 @@
 
                /** Methods **/
                /* Senders */
+                void send_Resource      (string resource_name);
 
                /* Receivers */
                 void recv_Requests      ();
@@ -30,9 +31,12 @@
             private:
                /* Variables */
                 uint                    server_port;
-                int                     server_bytes_recv;
+                uint                    server_stream;
 
-                socklen_t               server_addr_len = sizeof(struct sockaddr);
+                int                     server_bytes_recv;
+                int                     server_bytes_send;
+
+                socklen_t               server_addr_len;
 
                 char*                   server_recv_buffer;
                 

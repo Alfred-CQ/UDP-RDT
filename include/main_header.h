@@ -43,17 +43,20 @@ typedef struct hostent      HOST;
 
 // Program
 typedef unsigned int        uint;
+typedef long unsigned int   luint;
 typedef vector<string>      RESOURCES;
 
 /* Definitions */
 // Sizes
 #define MAX_MESSAGE_SIZE    1024
-#define MAX_SEGMENT_SIZE    1000
+#define MAX_SEGMENT_SIZE    10
 
 #define MIN_MESSAGE_SIZE    0
 
 #define SOCK_ADDR_SIZE      sizeof(sockaddr)
 #define REQUEST_SIZE        102
+
+#define NUMBER_STREAMS      9
 
 // Connection
 #define PORT                5000
