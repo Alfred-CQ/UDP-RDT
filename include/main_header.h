@@ -23,13 +23,16 @@
 #include <filesystem>
 #include <fstream>
 #include <thread>
+#include <map>
+#include <iomanip> 
 
 /* Usings */
 using std::cout;            using std::cin;   
-using std::endl;
+using std::endl;            using std::setw;
+using std::setfill;
 using std::string;          using std::ifstream;
 using std::ofstream;        using std::vector;
-using std::thread;
+using std::thread;          using std::map;
 
 // Namespaces
 namespace fs = std::filesystem;
@@ -49,14 +52,18 @@ typedef vector<string>      RESOURCES;
 /* Definitions */
 // Sizes
 #define MAX_MESSAGE_SIZE    1024
-#define MAX_SEGMENT_SIZE    10
+#define MAX_DATA_SIZE       10
 
 #define MIN_MESSAGE_SIZE    0
 
 #define SOCK_ADDR_SIZE      sizeof(sockaddr)
 #define REQUEST_NAME_SIZE   102
+#define PADDING_SIZE        3
 
 #define NUMBER_STREAMS      9
+
+#define HEAD_MESSAGES       3
+#define TAIL_MESSAGES       3    
 
 // Connection
 #define PORT                5000

@@ -1,5 +1,6 @@
 #include "../include/udp_server.h"
 #include "../include/utils.h"
+#include "../include/message.h"
 
 /* Constructors */
 UDPServer::UDPServer(string ip, uint port)
@@ -42,53 +43,46 @@ UDPServer::UDPServer(string ip, uint port)
 // Senders
 void UDPServer::send_Responses(string resource_name)
 {
-    ifstream resource { resource_name, std::ios::in };
+    string   resource_path { server_resources_path + resource_name };
+    ifstream resource      { resource_path, std::ios::in };
 
-    int  size_resource, t_size_resource;
-    uint number_segments, padding{0};
-    char buffer_read[MAX_SEGMENT_SIZE];
-
-    string thread_stream { std::to_string(server_stream++) },
-           sequence_number,
-           number_segments_str,
-           padding_str,
-           segment_read,
-           checksum;
+    int      size_resource;
+    uint     number_segments, padding{0};
+    char     data_read[MAX_DATA_SIZE];
 
     resource.seekg(0, resource.end);
     size_resource = resource.tellg();
     resource.seekg(0, resource.beg);
 
-    t_size_resource = size_resource;
-    padding         = 0;
-    number_segments = (size_resource + MAX_SEGMENT_SIZE - 1) / MAX_SEGMENT_SIZE;
-    number_segments_str = utils::complete_Bytes(number_segments, 4);
+    number_segments = (size_resource + MAX_DATA_SIZE - 1) / MAX_DATA_SIZE;
     
+    Response* response = new Response(resource_name, server_stream++, number_segments);
+    
+    response->set_Source(server_sockFD);
+    response->set_Destination((SOCK_ADDR*)& client_addr);
+
     cout << "******************************************************\n"
-         << " 📨 Sending resource " << resource_name << " in the stream " << thread_stream << endl;
+         << " 📨 Sending resource " << resource_name << " in the stream " << endl;
 
     for (size_t i = 0; i < number_segments; ++i)
     {
-        resource.read(buffer_read,MAX_SEGMENT_SIZE);
+        resource.read(data_read,MAX_DATA_SIZE);
+        
+        size_resource -= MAX_DATA_SIZE;
 
-        t_size_resource -= MAX_SEGMENT_SIZE;
-
-        if (t_size_resource < 0)
+        if (size_resource < 0)
         {
-            padding = (t_size_resource * -1);
-            utils::fill_Zeros(buffer_read, padding);
+            padding = (size_resource * -1);
+            utils::fill_Zeros(data_read, padding);
         }
 
-        sequence_number = utils::complete_Bytes( i + 10, 5);
-        padding_str     = utils::complete_Bytes(padding, 3);
-        segment_read    = string(buffer_read);
-        checksum        = std::to_string(utils::make_Checksum(segment_read));
-      
-        string data = sequence_number + thread_stream + number_segments_str + padding_str + checksum + segment_read;
-        
-        sendto(server_sockFD, &(data.front()), data.size(), MSG_CONFIRM, (const SOCK_ADDR *)& client_addr, server_addr_len);
+        response->insert_Segment( i + 10, padding, data_read);
+        response->send_Segment(i + 10);
     }
 
+    response->print_Head();
+    response->print_Tail();
+    
     cout << " 📪 Resource sent \n"
          << "******************************************************" << endl;
          
@@ -143,15 +137,12 @@ void UDPServer::print_Information()
          << endl;
 }
 
-bool UDPServer::find_Resource(string& resource_name)
+bool UDPServer::find_Resource(string resource_name)
 {
     for (const auto & entry : fs::directory_iterator(server_resources_path))
     {
         if ( entry.path().filename() == resource_name )
-        {
-            resource_name = server_resources_path + resource_name;
             return true;
-        }
     }
 
     return false;

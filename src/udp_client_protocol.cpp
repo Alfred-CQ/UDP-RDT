@@ -59,15 +59,17 @@ void UDPClient::recv_Responses()
     while (1)
     {
         client_bytes_recv = recvfrom(client_sockFD, client_recv_buffer, MAX_MESSAGE_SIZE, MSG_WAITALL, (SOCK_ADDR *)& server_addr, &client_addr_len);
-        stream = client_recv_buffer[5];
+        client_recv_buffer[client_bytes_recv] = '\0';
+
+        stream = client_recv_buffer[0];
         
         size_t idx_stream = atoi(&stream);
-        number_segments = string(client_recv_buffer, 6, 4);
+        number_segments = string(client_recv_buffer, 6, 5);
         
         cout << client_recv_buffer << endl;
         cout << " - " << idx_stream << " - " << number_segments << endl;
 
-        data_streams[idx_stream].push_back(string(client_recv_buffer, 14, MAX_SEGMENT_SIZE));
+        data_streams[idx_stream].push_back(string(client_recv_buffer, 14, MAX_DATA_SIZE));
 
         if (data_streams[idx_stream].size() == luint(atoi(number_segments.c_str())))
         {

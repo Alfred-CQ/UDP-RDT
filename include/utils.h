@@ -34,7 +34,7 @@
         
         static inline void fill_Zeros(char* data, uint padding)
         {
-            for ( size_t j = MAX_SEGMENT_SIZE - padding; j < MAX_SEGMENT_SIZE; ++j)
+            for ( size_t j = MAX_DATA_SIZE - padding; j < MAX_DATA_SIZE; ++j)
             {
                 data[j] = '0';
             }

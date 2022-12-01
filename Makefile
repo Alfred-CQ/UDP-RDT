@@ -21,7 +21,7 @@ SRC_LIST_CLIENT = $(patsubst %.cpp,$(SRC_DIR)/%.cpp,$(CPP_LIST_CLIENT))
 OBJ_LIST_CLIENT = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC_LIST_CLIENT))
 DEP_LIST_CLIENT = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.d,$(SRC_LIST_CLIENT))
 
-CPP_LIST_SERVER = server.cpp udp_server_protocol.cpp
+CPP_LIST_SERVER = server.cpp udp_server_protocol.cpp message.cpp
 SRC_LIST_SERVER = $(patsubst %.cpp,$(SRC_DIR)/%.cpp,$(CPP_LIST_SERVER))
 OBJ_LIST_SERVER = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC_LIST_SERVER))
 DEP_LIST_SERVER = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.d,$(SRC_LIST_SERVER))

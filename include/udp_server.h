@@ -26,7 +26,7 @@
 
                /* Utilities */
                 void print_Information  ();
-                bool find_Resource      (string& resource_name);
+                bool find_Resource      (string resource_name);
 
             private:
                /* Variables */

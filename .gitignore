@@ -34,8 +34,13 @@
 client
 server
 
-# File types
+# Text files
 *.txt
+*.html
+*.css
+*.js
+
+# Binary files
 *.jpg
 *.mp4
 
