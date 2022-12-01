@@ -7,15 +7,15 @@
         {
             public:
                /* Variables */
-                int                     server_sockFD;
-                string                  server_ip;
+                int                     sockFD;
+                string                  ip;
 
-                SOCK_ADDR_IN            server_addr;
+                SOCK_ADDR_IN            addr;
                 SOCK_ADDR_IN            client_addr;
             
                /* Constructors */
                 UDPServer               ();
-                UDPServer               (string ip, uint port = PORT);
+                UDPServer               (string _ip, uint _port = PORT);
 
                /** Methods **/
                /* Senders */
@@ -30,15 +30,15 @@
 
             private:
                /* Variables */
-                uint                    server_port;
-                uint                    server_stream;
+                uint                    port;
+                uint                    stream;
 
-                int                     server_bytes_recv;
-                int                     server_bytes_send;
+                int                     bytes_recv;
+                int                     bytes_send;
 
-                socklen_t               server_addr_len;
+                socklen_t               addr_len;
 
-                char*                   server_recv_buffer;
+                char*                   recv_buffer;
                 
                 string                  server_resources_path;
                 string                  server_current_path;

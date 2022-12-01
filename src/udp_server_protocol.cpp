@@ -3,25 +3,26 @@
 #include "../include/message.h"
 
 /* Constructors */
-UDPServer::UDPServer(string ip, uint port)
+UDPServer::UDPServer(string _ip, uint _port)
 {
-    server_ip       = ip;
-    server_port     = port;
-    server_addr_len = sizeof(struct sockaddr);
-    server_stream   = 0;
+    ip       = _ip;
+    port     = _port;
+    addr_len = sizeof(struct sockaddr);
+    stream   = 0;
     
-    if ((server_sockFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if ((sockFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         perror("Socket");
         exit(1);
     }
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    bzero(&(server_addr.sin_zero), 8);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(server_sockFD, (SOCK_ADDR *)&server_addr, sizeof(SOCK_ADDR)) == -1)
+    bzero(&(addr.sin_zero), 8);
+
+    if (bind(sockFD, (SOCK_ADDR *)&addr, sizeof(SOCK_ADDR)) == -1)
     {
         perror("Bind");
         exit(1);
@@ -56,9 +57,9 @@ void UDPServer::send_Responses(string resource_name)
 
     number_segments = (size_resource + MAX_DATA_SIZE - 1) / MAX_DATA_SIZE;
     
-    Response* response = new Response(resource_name, server_stream++, number_segments);
+    Response* response = new Response(resource_name, stream++, number_segments);
     
-    response->set_Source(server_sockFD);
+    response->set_Source(sockFD);
     response->set_Destination((SOCK_ADDR*)& client_addr);
 
     cout << "******************************************************\n"
@@ -95,19 +96,16 @@ void UDPServer::recv_Requests()
     char size_Request[3];
     string resource_name;
 
-    server_bytes_recv = 0;
-    server_recv_buffer = new char[REQUEST_NAME_SIZE];
+    bytes_recv = 0;
+    recv_buffer = new char[REQUEST_NAME_SIZE];
    
     while (1)
     {
-        server_bytes_recv = recvfrom(server_sockFD, server_recv_buffer, 
-                                     REQUEST_NAME_SIZE, 0, 
-                                     (SOCK_ADDR *)& client_addr, &server_addr_len
-                                    );
+        bytes_recv = recvfrom(sockFD, recv_buffer, REQUEST_NAME_SIZE, 0, (SOCK_ADDR *)& client_addr, &addr_len);
         
-        strncpy(size_Request, server_recv_buffer, 2);
+        strncpy(size_Request, recv_buffer, 2);
 
-        resource_name = string(server_recv_buffer, 2, atoi(size_Request));
+        resource_name = string(recv_buffer, 2, atoi(size_Request));
 
         if (find_Resource(resource_name))
         {
@@ -130,8 +128,8 @@ void UDPServer::print_Information()
          << "      ░░▀▀█░█▀▀░█▀▄░▀▄▀░█▀▀░█▀▄░░░█░█░█░█░█▀▀░░\n"
          << "      ░░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀░░▀░░░░\n"
          << "******************************************************\n"
-         << "        IP            : " << server_ip << "\n"
-         << "        PORT          : " << server_port << "\n"
+         << "        IP            : " << ip << "\n"
+         << "        PORT          : " << port << "\n"
          << "        RESOURCES_PATH: " << server_resources_path << "\n"
          << "******************************************************"
          << endl;

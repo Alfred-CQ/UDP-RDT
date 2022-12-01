@@ -2,21 +2,21 @@
 #include "../include/utils.h"
 
 /* Constructors and Destructor */
-UDPClient::UDPClient(string ip_server, uint port)
+UDPClient::UDPClient(string _ip_server, uint _port)
 {
-    client_host     = (HOST *)gethostbyname((char *)ip_server.c_str());
-    client_port     = port;
-    client_addr_len = sizeof(struct sockaddr);
+    host     = (HOST *)gethostbyname((char *)_ip_server.c_str());
+    port     = _port;
+    addr_len = sizeof(struct sockaddr);
 
-    if ((client_sockFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if ((sockFD = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         perror("socket");
         exit(1);
     }
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port   = htons(client_port);
-    server_addr.sin_addr   = *((IN_ADDR *)client_host->h_addr);
+    server_addr.sin_port   = htons(port);
+    server_addr.sin_addr   = *((IN_ADDR *)host->h_addr);
 
     bzero(&(server_addr.sin_zero), 8);
 
@@ -42,13 +42,13 @@ void UDPClient::send_Request(string resource_request)
 
     string request    = utils::complete_Bytes(resource_request.size(), 2) + resource_request;
 
-    client_bytes_send = sendto(client_sockFD, &(request.front()), request.size(), 0, (SOCK_ADDR*)& server_addr, SOCK_ADDR_SIZE);
+    bytes_send = sendto(sockFD, &(request.front()), request.size(), 0, (SOCK_ADDR*)& server_addr, SOCK_ADDR_SIZE);
 }
 
 // Receivers
 void UDPClient::recv_Responses()
 {
-    client_recv_buffer = new char[MAX_MESSAGE_SIZE];
+    recv_buffer = new char[MAX_MESSAGE_SIZE];
 
     vector<bool> streams_used (NUMBER_STREAMS, false);
     vector<vector<string>> data_streams(NUMBER_STREAMS);
@@ -58,18 +58,18 @@ void UDPClient::recv_Responses()
 
     while (1)
     {
-        client_bytes_recv = recvfrom(client_sockFD, client_recv_buffer, MAX_MESSAGE_SIZE, MSG_WAITALL, (SOCK_ADDR *)& server_addr, &client_addr_len);
-        client_recv_buffer[client_bytes_recv] = '\0';
+        bytes_recv = recvfrom(sockFD, recv_buffer, MAX_MESSAGE_SIZE, MSG_WAITALL, (SOCK_ADDR *)& server_addr, &addr_len);
+        recv_buffer[bytes_recv] = '\0';
 
-        stream = client_recv_buffer[0];
+        stream = recv_buffer[0];
         
         size_t idx_stream = atoi(&stream);
-        number_segments = string(client_recv_buffer, 6, 5);
+        number_segments = string(recv_buffer, 6, 5);
         
-        cout << client_recv_buffer << endl;
+        cout << recv_buffer << endl;
         cout << " - " << idx_stream << " - " << number_segments << endl;
 
-        data_streams[idx_stream].push_back(string(client_recv_buffer, 14, MAX_DATA_SIZE));
+        data_streams[idx_stream].push_back(string(recv_buffer, 14, MAX_DATA_SIZE));
 
         if (data_streams[idx_stream].size() == luint(atoi(number_segments.c_str())))
         {
@@ -93,6 +93,6 @@ void UDPClient::print_Information()
          << "      ░░█░░░█░░░░█░░█▀▀░█░█░░█░░░░█░█░█░█░█▀▀░░\n"
          << "      ░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀░░▀░░░░\n"
          << "*****************************************************\n"
-         << "        PORT          : " << client_port
+         << "        PORT          : " << port
          << endl;
 }

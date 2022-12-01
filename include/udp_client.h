@@ -7,12 +7,12 @@
         {
             public:
                /* Variables */
-                int                     client_sockFD;
+                int                     sockFD;
                 SOCK_ADDR_IN            server_addr;
-                HOST*                   client_host;
+                HOST*                   host;
             
                /* Constructors and Destructor*/
-                UDPClient               (string ip, uint port = PORT);
+                UDPClient               (string _ip, uint _port = PORT);
                ~UDPClient               ();
 
                /** Methods **/
@@ -27,16 +27,16 @@
 
             private:
                /* Variables */
-                uint                    client_port;
+                uint                    port;
                 
-                int                     client_bytes_recv;
-                int                     client_bytes_send;
+                int                     bytes_recv;
+                int                     bytes_send;
 
-                socklen_t               client_addr_len;
+                socklen_t               addr_len;
 
-                string                  client_send_buffer;
+                string                  send_buffer;
 
-                char*                   client_recv_buffer;
+                char*                   recv_buffer;
         };
         
 #endif // !__UDP_CLIENT__
